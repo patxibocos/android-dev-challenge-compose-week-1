@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,9 +31,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
@@ -44,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -121,9 +125,25 @@ fun MyApp(currentScreen: Screen = Screen.CatsList, catClicked: (Cat) -> Unit = {
     }
 }
 
+@Preview("aaa")
 @Composable
-fun CatDetails(cat: Cat) {
-    Text(cat.name)
+fun CatDetails(cat: Cat = Cat("aaa", R.drawable.ic_leopard_47727)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            imageVector = ImageVector.vectorResource(id = cat.imageResource),
+            contentDescription = null,
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(200.dp)
+                .background(MaterialTheme.colors.secondaryVariant)
+        )
+        Text(cat.name)
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

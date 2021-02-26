@@ -20,6 +20,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -48,8 +54,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -101,14 +107,51 @@ sealed class Screen {
     class CatDetails(val cat: Cat) : Screen()
 }
 
-class Cat(val name: String, @IdRes val imageResource: Int)
+enum class Gender { Male, Female }
+class Cat(
+    val name: String,
+    val gender: Gender,
+    @IdRes val imageResource: Int,
+    val curiosity: String
+)
 
 val sampleCats = listOf(
-    Cat("Tiger", R.drawable.ic_animal_1297724),
-    Cat("Max", R.drawable.ic_cartoon_1292872),
-    Cat("Smokey", R.drawable.ic_cartoon_1296251),
-    Cat("Kitty", R.drawable.ic_grooming_1801287),
-    Cat("Simba", R.drawable.ic_leopard_47727),
+    Cat(
+        "Tiger",
+        Gender.Male,
+        R.drawable.cat1,
+        "Are you that clean? This behavior serves several purposes: It helps cats tone down their scent so they can avoid predators, it cools them down, it promotes blood flow, and it distributes natural oils evenly around their coat, allowing them to stay warm and dry. Grooming also serves as a sign of affection between two cats, and it’s thought that saliva contains enzymes that serve as a natural antibiotic for wounds."
+    ),
+    Cat(
+        "Max",
+        Gender.Male,
+        R.drawable.cat2,
+        "Ever wonder why catnip lulls felines into a trance? The herb contains several chemical compounds, including one called nepetalactone, which a cat detects with receptors in its nose and mouth. The compounds trigger the typical odd behaviors you associate with the wacky kitty weed, including sniffing, head shaking, head rubbing, and rolling around on the ground."
+    ),
+    Cat(
+        "Lily",
+        Gender.Female,
+        R.drawable.cat3,
+        "More than half of the world’s felines don’t respond to catnip. Scientists still don’t know quite why some kitties go crazy for the aromatic herb and others don’t, but they have figured out that catnip sensitivity is hereditary. If a kitten has one catnip-sensitive parent, there’s a one-in-two chance that it will also grow up to crave the plant. And if both parents react to 'nip, the odds increase to at least three in four."
+    ),
+    Cat(
+        "Kitty",
+        Gender.Female,
+        R.drawable.cat4,
+        "A rich British antique dealer named Ben Rea loved his cat Blackie so much that when he died in 1988, he left most of his estate—totaling nearly \$13 million—to the lucky (albeit likely indifferent) feline. The money was split among three cat charities, which had been instructed to keep an eye on Rea’s beloved companion. To this day, Blackie holds the Guinness World Record for Wealthiest Cat."
+    ),
+    Cat(
+        "Simba",
+        Gender.Female,
+        R.drawable.cat5,
+        "On October 18, 1963, French scientists used a rocket to launch the first cat into space. The feline’s name was Félicette, and she made it safely to the ground following a parachute descent. Almost definitely landing on her feet."
+    ),
+    Cat(
+        "Alfie",
+        Gender.Male,
+        R.drawable.cat6,
+        "A train station in Southeastern Japan is presided over by an adorable \"stationmaster\": a 7-year-old calico cat named Nitama. The Kishi train station near Wakayama City hired Nitama in 2015, just a few months after its prior feline mascot, Tama, died from acute heart failure at the age of 16."
+    ),
 )
 
 // Start building your app here!
@@ -127,22 +170,49 @@ fun MyApp(currentScreen: Screen = Screen.CatsList, catClicked: (Cat) -> Unit = {
 
 @Preview("aaa")
 @Composable
-fun CatDetails(cat: Cat = Cat("aaa", R.drawable.ic_leopard_47727)) {
+fun CatDetails(cat: Cat = Cat("Luna", Gender.Female, R.drawable.cat1, "Curiosity")) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 20.dp),
+            .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val infiniteTransition = rememberInfiniteTransition()
+        val rotation by infiniteTransition.animateFloat(
+            initialValue = -10f,
+            targetValue = 10f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+        )
         Image(
-            imageVector = ImageVector.vectorResource(id = cat.imageResource),
+            painter = painterResource(id = cat.imageResource),
             contentDescription = null,
             modifier = Modifier
                 .clip(CircleShape)
                 .size(200.dp)
+                .rotate(rotation)
                 .background(MaterialTheme.colors.secondaryVariant)
         )
-        Text(cat.name)
+        Text(
+            text = cat.name,
+            fontWeight = FontWeight.Light,
+            fontSize = 32.sp,
+            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
+        )
+        Text(
+            text = when (cat.gender) {
+                Gender.Male -> "♂️️"
+                Gender.Female -> "♀️"
+            },
+            fontSize = 42.sp
+        )
+        Text(
+            modifier = Modifier.padding(top = 10.dp),
+            text = cat.curiosity,
+            fontSize = 24.sp,
+        )
     }
 }
 
@@ -195,7 +265,7 @@ fun CatItem(cat: Cat, catClicked: (Cat) -> Unit) {
                 modifier = Modifier.padding(bottom = 10.dp),
             )
             Image(
-                imageVector = ImageVector.vectorResource(id = cat.imageResource),
+                painter = painterResource(id = cat.imageResource),
                 contentDescription = null
             )
         }
